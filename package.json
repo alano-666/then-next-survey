@@ -1,0 +1,8 @@
+{
+  "name": "then-next-survey",
+  "version": "0.1.0",
+  "private": true,
+  "description": "然后呢？读者侧用户调研 Demo",
+  "scripts": {"start": "node server.js"},
+  "engines": {"node": ">=18"}
+}
