@@ -1,38 +1,30 @@
 # 然后呢？读者调研
 
-蓝白黑配色、手机适配的读者问卷。每人随机看到5篇帖子，A/B/C三类至少各1篇。
+Vercel + Supabase 的读者侧调查问卷。前端为简洁的知乎风格蓝白黑界面，支持电脑和手机浏览器。
 
-## 线上部署：Vercel + Supabase
+## 仓库内容
 
-1. 在 Supabase 创建项目，在 SQL Editor 执行 `supabase/schema.sql`。
-2. 将本仓库导入 Vercel，Framework Preset 选 Other，Output Directory 为 `public`。
-3. 在 Vercel 环境变量中设置：
-   - `SUPABASE_URL`
-   - `SUPABASE_SERVICE_ROLE_KEY`（仅服务器环境变量，绝不能放进前端）
-   - `ADMIN_TOKEN`（长随机密码，只有研究人员持有）
-4. 部署后打开网站参与问卷；打开 `/admin.html` 输入管理员密码下载 CSV / JSONL。
-5. 修改环境变量后重新部署。
+- `public/`：问卷页面、样式、浏览器行为采集、管理员下载页
+- `api/`：Vercel Serverless API
+- `data/posts.json`：30篇调查帖子，A/B/C三类各10篇
+- `supabase/schema.sql`：Supabase建表和权限脚本
+- `vercel.json`：Vercel配置
+- `DEPLOY.md`：交给部署 Agent 的逐步部署说明
+- `server.js`：本地开发服务
 
-Supabase 数据表启用 RLS，匿名用户无法直接读取答卷。只有 Vercel 服务端使用 service role key 读写。
+## 线上部署
 
-## 本地运行
+请先阅读 `DEPLOY.md`。线上答卷不会写入 GitHub 或本地文件，而是写入 Supabase `survey_records` 表。参与者只发送数据，不能查询数据；管理员通过 `/admin.html` 和 `ADMIN_TOKEN` 下载 CSV/JSONL。
+
+## 安全
+
+环境变量只能配置在 Vercel 后台：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`ADMIN_TOKEN`。不要提交 `.env`、答卷、CSV 或 Supabase 密钥。
+
+## 快速本地运行
 
 ```sh
 cd "/Users/alano/然后呢"
-ADMIN_TOKEN='自行设置长密码' node server.js
+ADMIN_TOKEN='local-test-password' node server.js
 ```
 
-浏览器打开 http://localhost:3000；本地模式数据在 `data/responses.jsonl`，不会上传至 GitHub。线上模式数据在 Supabase。
-
-## 帖子
-
-编辑 `data/posts.json`。只保留 `post_id/title/body/source_url/author/published_at/category/word_count/topic` 九个字段。
-
-当前正文为空，仅供流程测试。实际招募前录入可使用的帖子；不要把测试数据与正式调研混合。
-
-## 数据与权限
-
-- 仓库仅包含代码、空帖子模板和建表脚本，不包含 PRD、问卷 DOCX、答卷和密钥。
-- 管理员密码不是参与者密码；不要把它发给参与者。
-- 前端公开不等于数据公开。不要关闭数据库 RLS，也不要创建允许匿名读取答卷的 policy。
-- Vercel/Supabase 的免费额度及大陆网络可达性以实际服务为准，上线后应做跨网络实测。
+然后打开 `http://localhost:3000`。本地数据在 `data/responses.jsonl`，正式线上数据在 Supabase。
