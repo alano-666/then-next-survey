@@ -1,13 +1,26 @@
 {
   "version": 2,
-  "outputDirectory": "public",
-  "headers": [
+  "builds": [
+    { "src": "public/**", "use": "@vercel/static" },
+    { "src": "api/session.js", "use": "@vercel/node", "config": { "includeFiles": ["data/posts.json"] } },
+    { "src": "api/event.js", "use": "@vercel/node" },
+    { "src": "api/response.js", "use": "@vercel/node" },
+    { "src": "api/export.js", "use": "@vercel/node" }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {"key": "X-Content-Type-Options", "value": "nosniff"},
-        {"key": "Referrer-Policy", "value": "strict-origin-when-cross-origin"}
-      ]
-    }
+      "src": "/(.*)",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin"
+      },
+      "continue": true
+    },
+    { "src": "/api/session", "dest": "/api/session.js" },
+    { "src": "/api/event", "dest": "/api/event.js" },
+    { "src": "/api/response", "dest": "/api/response.js" },
+    { "src": "/api/export", "dest": "/api/export.js" },
+    { "src": "/", "dest": "/public/index.html" },
+    { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }
